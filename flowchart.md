@@ -13,63 +13,210 @@ flowchart TD
     %% =====================
     %% Inputs
     %% =====================
-    fasta["genomes.fasta.list"]:::file
-    anno["genomes.gff / .gbff list"]:::file
-    h5[(pangenome.h5)]:::file
+    fasta[(genomes.fasta.list)]:::file
+    anno[(genomes.gbff list)]:::file
 
     %% =====================
-    %% High-level workflows
-    %% =====================
-    workflow[workflow]:::workflow
-    panrgp[panrgp]:::rgpfill
-    allcmd[all]:::workflow
-
-    fasta --> workflow
-    anno --> workflow
-
-    fasta --> panrgp
-    anno --> panrgp
-
-    fasta --> allcmd
-    anno --> allcmd
-
-    %% =====================
-    %% annotate
+    %% Annotate
     %% =====================
     annotate[annotate]:::cmd
 
-    fasta --> annotate
-    anno --> annotate
+    fasta -."--fasta".-> annotate
+    anno -."--anno".-> annotate
 
-    annotate_opts["--prodigal<br/>--norna<br/>--allow-overlap<br/>--kingdom XXX<br/>--use-fasta"]:::opt
-    annotate_opts -.-> annotate
+    annotate_opts["
+        --prodigal
+        --norna
+        --allow-overlap
+        --kingdom XXX
+        --use-fasta
+    "]:::opt
+    annotate_opts --> annotate
 
-    annotate --> h5
+    annotate --> h5_annotate["pangenome.h5"]:::file
 
     %% =====================
-    %% cluster
+    %% Cluster
     %% =====================
     cluster[cluster]:::cmd
-    h5 --> cluster
+    h5_annotate -."-p".-> cluster
 
-    cluster_opts["--identity 0.8<br/>--coverage 0.8<br/>--mode 1/2/3<br/>--infer_singleton<br/>--no_defrag"]:::opt
+    clusters_tsv["clusters.tsv"]:::file
+    clusters_tsv -."--clusters".-> cluster
+
+    cluster_opts["
+        --identity 0.8
+        --coverage 0.8
+        --mode 1/2/3
+        --infer_singleton
+        --no_defrag
+    "]:::opt
     cluster_opts -.-> cluster
 
-    clusters_tsv["clusters.tsv<br/>(--clusters)"]:::file
-    clusters_tsv -.-> cluster
-
-    cluster --> h5
+    cluster --> h5_cluster["pangenome.h5"]:::file
 
     %% =====================
-    %% graph
+    %% Graph
     %% =====================
-    graph[graph]:::cmd
-    h5 --> graph
+    graf[graph]:::cmd
+    h5_cluster -."-p".-> graf
 
-    graph_opts["--remove_high_copy_number"]:::opt
-    graph_opts -.-> graph
+    graph_opts["
+        --remove_high_copy_number
+    "]:::opt
+    graph_opts -.-> graf
 
-    graph --> h5
+    graf --> h5_graph["pangenome.h5"]:::file
 
     %% =====================
+    %% Partition
+    %% =====================
+    partition[partition]:::cmd
+    h5_graph -."-p".-> partition
+
+    partition_opts["
+        --nb_of_partitions X
+    "]:::opt
+    partition_opts -.-> partition
+
+    partition --> h5_partition["pangenome.h5"]:::file
+
+    %% =====================
+    %% Module
+    %% =====================
+    module[module]:::cmd
+    h5_partition -."-p".-> module
+
+    module --> h5_module["pangenome.h5"]:::file
+
+    %% =====================
+    %% RGP
+    %% =====================
+    rgp[rgp]:::cmd
+    h5_partition -."-p".-> rgp
+
+    rgp_opts["
+        --variable_gain
+        --persistent_penalty
+        --min_score
+        --min_length
+        --dup_margin
+    "]:::opt
+    rgp_opts -.-> rgp
+
+    rgp --> h5_rgp["pangenome.h5"]:::file
+
+    %% =====================
+    %% Spot
+    %% =====================
+    spot[spot]:::cmd
+    h5_rgp -."-p".-> spot
+
+    spot_opts["--set_size
+        --overlapping_match
+        --exact_match_size
+        --spot_graph
+        --graph_formats
+    "]:::opt
+    spot_opts -.-> spot
+
+    spot --> h5_spot["pangenome.h5"]:::file
+
+    %% =====================
+    %% Draw
+    %% =====================
+    draw[draw]:::cmd
+    h5_partition -."-p".-> draw
+
+    draw_opts["--ucurve
+        --tile_plot
+        --nocloud
+        --add_dendrogram
+        --add_metadata
+        --draw_spots
+    "]:::opt
+    draw_opts -.-> draw
+
+    %% =====================
+    %% rarefaction
+    %% =====================
+    rarefaction[rarefaction]:::cmd
+
+    rarefaction_opts["
+        --depth 30
+        --min 1
+        --max 100
+    "]:::opt
+    rarefaction_opts -.-> rarefaction
+
+    %% =====================
+    %% metrics
+    %% =====================
+    metrics[metrics]:::cmd
+
+    metrics_opts["--genome_fluidity"]:::opt
+    metrics_opts -.-> metrics
+
+    metrics --> h5
+
+    %% =====================
+    %% info
+    %% =====================
+    info[info]:::cmd
+
+    info_opts["
+        --status
+        --parameters
+        --content
+        --metadata
+    "]:::opt
+    info_opts -.-> info
+
+    %% =====================
+    %% write_pangenome
+    %% =====================
+    writep[write_pangenome]:::cmd
+
+    write_opts["
+        --stats
+        --gexf
+        --light_gexf
+        --json
+        --regions
+        --spots
+        --borders
+        --spot_modules
+    "]:::opt
+    write_opts -.-> writep
+
+    %% =====================
+    %% Main outputs
+    %% =====================
+    genome_stats["genome_statistics.tsv"]:::file
+    mean_dup["mean_persistent_duplication.tsv"]:::file
+    rtab["gene_presence_absence.Rtab"]:::file
+
+    gexf["XXX.gexf"]:::file
+    lightgexf["XXX_light.gexf"]:::file
+    json["XXX.json"]:::file
+
+    regions["regions_of_genomic_plasticity.tsv"]:::file
+    spots["spots.tsv"]:::file
+    sumspots["summarize_spots.tsv"]:::file
+    borders["borders.tsv"]:::file
+    spotmods["modules_spots.tsv
+    modules_RGP_lists.tsv"]:::file
+
+    writep --> genome_stats
+    writep --> mean_dup
+    writep --> rtab
+
+    writep --> gexf
+    writep --> lightgexf
+    writep --> json
+
+    writep --> regions
+    writep --> spots
+    writep --> sumspots
+    writep --> borders
     writep --> spotmods
