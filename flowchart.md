@@ -15,6 +15,16 @@ anno[(genomes.gbff list)]:::file
 clusters_tsv["clusters.tsv"]:::file
 
 %% =====================
+%% Options on top for priority
+%% =====================
+annotate_opts
+cluster_opts
+graph_opts
+partition_opts
+rgp_opts
+spot_opts
+
+%% =====================
 %% Annotate
 %% =====================
 fasta -."--fasta".-> annotate[annotate]:::cmd
@@ -44,9 +54,9 @@ cluster_opts["
 
 cluster --> h5_cluster["pangenome.h5"]:::file
 
-h5_cluster -."-p".-> wp_cluster[write_pangenome]:::cmd
-wp_cluster -."--Rtab".-> rtab["gene_presence_absence.Rtab"]:::file
-wp_cluster -."--csv".-> csv["matrix.csv"]:::file
+%% h5_cluster -."-p".-> wp_cluster[write_pangenome]:::cmd
+%% wp_cluster -."--Rtab".-> rtab["gene_presence_absence.Rtab"]:::file
+%% wp_cluster -."--csv".-> csv["matrix.csv"]:::file
 
 %% =====================
 %% Graph
@@ -67,12 +77,6 @@ partition_opts["
 "]:::opt -.-> partition
 
 partition --> h5_partition["pangenome.h5"]:::file
-
-h5_partition -."-p".-> wp_partition[write_pangenome]:::cmd
-wp_partition -."--partitions".-> partitions["partition/XXX.txt"]:::file
-wp_partition -."--gexf".-> gexf["XXX.gexf"]:::file
-wp_partition -."--light_gexf".-> lgexf["XXX_light.gexf"]:::file
-wp_partition -."--json".-> json["XXX.json"]:::file
 
 %% =====================
 %% Module
@@ -105,13 +109,7 @@ rgp --> h5_rgp["pangenome.h5"]:::file
 spot[spot]:::cmd
 h5_rgp -."-p".-> spot
 
-spot_opts["
-    --set_size
-    --overlapping_match
-    --exact_match_size
-    --spot_graph
-    --graph_formats
-"]:::opt
+spot_opts["--set_size<br/>--overlapping_match<br/>--exact_match_size<br/>--spot_graph<br/>--graph_formats"]:::opt
 spot_opts -.-> spot
 
 spot --> h5_spot["pangenome.h5"]:::file
@@ -154,13 +152,25 @@ rarefaction --> rare["rarefaction.html"]:::file
 %% =====================
 info[info]:::cmd
 
-info_opts["
-    --status
-    --parameters
-    --content
-    --metadata
-"]:::opt
+info_opts["--status<br/>--parameters<br/>--content<br/>--metadata"]:::opt
 info_opts -.-> info
+
+%% =====================
+%% Write Pangenome
+%% =====================
+
+h5_module -."-p".-> wp[write_pangenome]:::cmd
+h5_spot -."-p".-> wp
+h5_rgp -."-p".-> wp
+h5_metrics -."-p".-> wp
+h5_partition -."-p".-> wp
+h5_graph -."-p".-> wp
+h5_cluster -."-p".-> wp
+h5_annotate -."-p".-> wp
+wp -."--partitions".-> partitions["partition/XXX.txt"]:::file
+wp -."--gexf".-> gexf["XXX.gexf"]:::file
+wp -."--light_gexf".-> lgexf["XXX_light.gexf"]:::file
+wp -."--json".-> json["XXX.json"]:::file
 
 %% =====================
 %% Subgraphs
