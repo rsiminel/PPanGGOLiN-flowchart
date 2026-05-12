@@ -8,17 +8,8 @@ classDef file fill:#eef4ff,stroke:#3366cc,stroke-width:1.5px,color:#2244aa;
 classDef opt fill:#f3fff1,stroke:#4c9a2a,stroke-width:1.5px,color:#2f6f1e;
 
 %% =====================
-%% Inputs
-%% =====================
-fasta[(genomes.fasta.list)]:::file
-anno[(genomes.gbff list)]:::file
-clusters_tsv["clusters.tsv"]:::file
-
-%% =====================
 %% Annotate
 %% =====================
-fasta --"--fasta"--> annotate[annotate]:::cmd
-anno -."--anno".-> annotate
 annotate_opts["
     -p --prodigal
     --norna
@@ -26,11 +17,12 @@ annotate_opts["
     --kingdom XXX
     --use-pseudo
 "]:::opt -.-> annotate
+anno[(genomes.gbff list)]:::file -."--anno".-> annotate[annotate]:::cmd
+fasta[(genomes.fasta.list)]:::file --"--fasta"--> annotate
 
 %% =====================
 %% Cluster
 %% =====================
-clusters_tsv -."--clusters".-> cluster
 cluster_opts["
     --identity 0.8
     --coverage 0.8
@@ -38,6 +30,7 @@ cluster_opts["
     --infer_singleton
     --no_defrag
 "]:::opt -.-> cluster
+clusters_tsv[clusters.tsv]:::file -."--clusters".-> cluster
 annotate ==> cluster[cluster]:::cmd
 
 %% =====================
