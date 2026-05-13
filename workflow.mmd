@@ -96,10 +96,15 @@ wp -."--light_gexf".-> lgexf["pangenomeGraph_light.gexf"]:::file
 wp -."--json".-> json["pangenomeGraph.json"]:::file
 lgexf & json ~~~ gexf
 wp -."--partitions".-> partitions["partition/XXX.txt"]:::file
-wp -."--proksee".-> proksee["proksee/XXX.json"]:::file
-wp -."--gff".-> gff["gff/XXX.gff"]:::file
-wp -."--table".-> table["table/XXX.tsv"]:::file
-partitions & proksee ~~~ gff & table
+
+%% =====================
+%% Write Genomes
+%% =====================
+h5 --"-p"--> wg[write_genomes]:::cmd
+wg -."--proksee".-> proksee["proksee/XXX.json"]:::file
+wg -."--gff".-> gff["gff/XXX.gff"]:::file
+wg -."--table".-> table["table/XXX.tsv"]:::file
+table & proksee ~~~ gff
 
 %% =====================
 %% Info
