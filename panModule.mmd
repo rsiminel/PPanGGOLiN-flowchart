@@ -1,0 +1,132 @@
+flowchart LR
+
+%% =====================
+%% Styles
+%% =====================
+classDef cmd fill:#ffffff,stroke:#111111,stroke-width:2px,color:#111111;
+classDef file fill:#eef4ff,stroke:#3366cc,stroke-width:1.5px,color:#2244aa;
+classDef opt fill:#f3fff1,stroke:#4c9a2a,stroke-width:1.5px,color:#2f6f1e;
+
+%% =====================
+%% Annotate
+%% =====================
+annotate_opts["
+    -p --prodigal
+    --norna
+    --allow-overlap
+    --kingdom XXX
+    --use-pseudo
+"]:::opt -.-> annotate
+anno[(genomes.gbff list)]:::file -."--anno".-> annotate[annotate]:::cmd
+fasta[(genomes.fasta.list)]:::file -."--fasta".-> annotate
+
+%% =====================
+%% Cluster
+%% =====================
+cluster_opts["
+    --identity 0.8
+    --coverage 0.8
+    --mode 1/2/3
+    --infer_singleton
+    --no_defrag
+"]:::opt -.-> cluster
+clusters_tsv[clusters.tsv]:::file -."--clusters".-> cluster
+annotate ==> cluster[cluster]:::cmd
+
+%% =====================
+%% Graph
+%% =====================
+graph_opts["
+    --remove_high_copy_number X
+"]:::opt -.-> graf
+cluster ==> graf[graph]:::cmd
+
+%% =====================
+%% Partition
+%% =====================
+partition_opts["
+    --nb_of_partitions X
+"]:::opt -.-> partition
+graf ==> partition[partition]:::cmd
+
+%% =====================
+%% Module
+%% =====================
+module[module]:::cmd
+partition ==> module
+
+%% =====================
+%% Pangenome.h5 Output
+%% =====================
+module --> h5[(pangenome.h5)]:::file
+partition --> h5
+graf --> h5
+cluster --> h5
+annotate --> h5
+
+%% =====================
+%% Draw
+%% =====================
+draw_opts["
+    --nocloud
+    --add_dendrogram
+    --add_metadata
+"]:::opt -.-> draw
+h5 --"-p"--> draw[draw]:::cmd
+draw -."--ucurve".-> uplot["Ushaped_plot.html"]:::file
+draw -."--tile_plot".-> tile["tile_plot.html"]:::file
+
+
+%% =====================
+%% Metrics
+%% =====================
+h5 --"-p"--> metrics[metrics]:::cmd
+metrics -."--genome_fluidity".-> h5
+
+%% =====================
+%% Write Pangenome
+%% =====================
+h5 --"-p"--> wp[write_pangenome]:::cmd
+
+%% == Workflow ==
+wp -."--families_tsv".-> families["gene_families.tsv"]:::file
+wp -."--Rtab".-> rtab["gene_presence_absence.Rtab"]:::file
+wp -."--stats".-> stats["genome_statistics.tsv"]:::file
+wp -."
+    --stats
+    -- dup_margin 0.05
+".-> dup["mean_persistent_duplication.tsv"]:::file
+wp -."--csv".-> csv["matrix.csv"]:::file
+wp -."--gexf".-> gexf["pangenomeGraph.gexf"]:::file
+wp -."--light_gexf".-> lgexf["pangenomeGraph_light.gexf"]:::file
+wp -."--json".-> json["pangenomeGraph.json"]:::file
+wp -."--partitions".-> partitions["partition/XXX.txt"]:::file
+dup ~~~ stats
+families & rtab ~~~ csv
+lgexf & json ~~~ gexf
+
+%% == PanModule ==
+wp -."--module".-> mfun["functional_modules.tsv"]:::file
+wp -."--module".-> mgen["modules_in_genomes.tsv"]:::file
+wp -."--module".-> msum["modules_summary.tsv"]:::file
+mfun & mgen ~~~ msum
+
+%% =====================
+%% Write Genomes
+%% =====================
+h5 --"-p"--> wg[write_genomes]:::cmd
+wg -."--proksee".-> proksee["proksee/XXX.json"]:::file
+wg -."--gff".-> gff["gff/XXX.gff"]:::file
+wg -."--table".-> table["table/XXX.tsv"]:::file
+table & proksee ~~~ gff
+
+%% =====================
+%% Info
+%% =====================
+h5 --"-p"--> info[info]:::cmd
+info_opts["
+    --status
+    --parameters
+    --content
+    --metadata
+"]:::opt -.-> info
