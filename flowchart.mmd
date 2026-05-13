@@ -18,7 +18,7 @@ annotate_opts["
     --use-pseudo
 "]:::opt -.-> annotate
 anno[(genomes.gbff list)]:::file -."--anno".-> annotate[annotate]:::cmd
-fasta[(genomes.fasta.list)]:::file --"--fasta"--> annotate
+fasta[(genomes.fasta.list)]:::file -."--fasta".-> annotate
 
 %% =====================
 %% Cluster
@@ -133,6 +133,7 @@ wp -."
     --stats
     -- dup_margin 0.05
 ".-> dup["mean_persistent_duplication.tsv"]:::file
+wp -."--Rtab".-> rtab["gene_presence_absence.Rtab"]:::file
 wp -."--partitions".-> partitions["partition/XXX.txt"]:::file
 wp -."--gexf".-> gexf["XXX.gexf"]:::file
 wp -."--light_gexf".-> lgexf["XXX_light.gexf"]:::file
