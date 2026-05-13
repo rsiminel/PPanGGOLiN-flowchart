@@ -37,7 +37,7 @@ annotate ==> cluster[cluster]:::cmd
 %% Graph
 %% =====================
 graph_opts["
-    --remove_high_copy_number
+    --remove_high_copy_number X
 "]:::opt -.-> graf
 cluster ==> graf[graph]:::cmd
 
@@ -61,15 +61,21 @@ rgp_opts["
 "]:::opt -.-> rgp
 partition ==> rgp[rgp]:::cmd
 
+%% rgpclust_opts["
+%%     --grr_cutoff 0.8
+%%     --no_identical_rgp_merging
+%% "]:::opt -.-> rgp_clust
+%% rgp ==> rgp_clust[rgp_clust]:::cmd
+
 %% =====================
 %% Spot
 %% =====================
 spot_opts["
-    --set_size
-    --overlapping_match
-    --exact_match_size
+    --set_size 3
+    --overlapping_match 2
+    --exact_match_size 1
     --spot_graph
-    --graph_formats
+    --graph_formats gexf
 "]:::opt -.-> spot
 rgp ==> spot[spot]:::cmd
 
@@ -84,11 +90,23 @@ partition ==> module
 %% =====================
 module --> h5[(pangenome.h5)]:::file
 spot --> h5
+%% rgp_clust ~~~ h5
 rgp --> h5
 partition --> h5
 graf --> h5
 cluster --> h5
 annotate --> h5
+
+%% =====================
+%% Rarefaction
+%% =====================
+rarefaction_opts["
+    --depth 30
+    --min 1
+    --max 100
+"]:::opt -.-> rarefaction
+h5 --"-p"--> rarefaction[rarefaction]:::cmd
+rarefaction --> rare["rarefaction.html"]:::file
 
 %% =====================
 %% Draw
@@ -100,20 +118,24 @@ draw_opts["
 "]:::opt -.-> draw
 h5 --"-p"--> draw[draw]:::cmd
 
-draw -."--ucurve".-> uplot["uplot.html"]:::file
-draw -."--tile_plot".-> tile["tile_plot.html"]:::file
+%% == Workflow ==
+draw -."--ucurve".-> uplot["Ushaped_plot.html"]:::file
+draw -."
+    --tile_plot
+    ? --nocloud
+    ? --add_dendrogram
+    ? --add_metadata
+".-> tile["tile_plot.html"]:::file
+tile ~~~ uplot
 
-%% =====================
-%% Rarefaction
-%% =====================
-rarefaction_opts["
-    --depth 30
-    --min 1
-    --max 100
-"]:::opt -.-> rarefaction
-h5 --"-p"--> rarefaction[rarefaction]:::cmd
-
-rarefaction --> rare["rarefaction.html"]:::file
+%% == PanRGP ==
+draw -."
+    --draw_spots
+    --spots
+".-> spot_fig["spot_figures"]:::file
+spot_fig --> sgexf["spot_X.gexf"]:::file
+spot_fig --> shtml["spot_X.html"]:::file
+spot_fig --> siden["spot_X_identical_rgps.tsv"]:::file
 
 %% =====================
 %% Metrics
@@ -125,28 +147,54 @@ metrics -."--genome_fluidity".-> h5
 %% Write Pangenome
 %% =====================
 h5 --"-p"--> wp[write_pangenome]:::cmd
-wp_opts["
-    -o rgp_outputs
-"]:::opt -.-> wp
+
+%% == Workflow ==
+wp -."--families_tsv".-> families["gene_families.tsv"]:::file
+wp -."--Rtab".-> rtab["gene_presence_absence.Rtab"]:::file
 wp -."--stats".-> stats["genome_statistics.tsv"]:::file
 wp -."
     --stats
     -- dup_margin 0.05
 ".-> dup["mean_persistent_duplication.tsv"]:::file
-wp -."--Rtab".-> rtab["gene_presence_absence.Rtab"]:::file
+wp -."--csv".-> csv["matrix.csv"]:::file
+wp -."--gexf".-> gexf["pangenomeGraph.gexf"]:::file
+wp -."--light_gexf".-> lgexf["pangenomeGraph_light.gexf"]:::file
+wp -."--json".-> json["pangenomeGraph.json"]:::file
 wp -."--partitions".-> partitions["partition/XXX.txt"]:::file
-wp -."--gexf".-> gexf["XXX.gexf"]:::file
-wp -."--light_gexf".-> lgexf["XXX_light.gexf"]:::file
-wp -."--json".-> json["XXX.json"]:::file
-gexf & json ~~~ lgexf
-wp -."--families_tsv".-> families["gene_families.tsv"]:::file
+dup ~~~ stats
+families & rtab ~~~ csv & partitions
+lgexf & json ~~~ gexf
+
+%% == PanRGP ==
 wp -."--regions".-> regions["regions_of_genomic_plasticity.tsv"]:::file
-wp -."--regions_families".-> rgp_fam["rgp_families.tsv"]:::file
-families & regions ~~~ rgp_fam
-wp -."--spots".-> spots["spots.tsv"]:::file & sum["summarize_spots.tsv"]:::file
-spots ~~~ sum
-wp -."--border".-> border["border.tsv"]:::file & border_fasta["border_protein_genes.fasta"]:::file
-border ~~~ border_fasta
+wp -."--spots".-> spots_tsv["spots.tsv"]:::file
+wp -."--spots".-> spots_sum["summarize_spots.tsv"]:::file
+wp -."--borders".-> spot_borders["spot_borders.tsv"]:::file
+wp -."--borders".-> border_genes["border_protein_genes.fasta"]:::file
+spots_tsv ~~~ spots_sum
+spot_borders ~~~ border_genes
+wp -."--regions_families".-> reg_fam["rgp_families.tsv"]:::file
+regions ~~~ reg_fam
+
+%% == PanModule ==
+wp -."--module".-> mfun["functional_modules.tsv"]:::file
+wp -."--module".-> mgen["modules_in_genomes.tsv"]:::file
+wp -."--module".-> msum["modules_summary.tsv"]:::file
+mfun & mgen ~~~ msum
+
+%% =====================
+%% Write Genomes
+%% =====================
+h5 --"-p"--> wg[write_genomes]:::cmd
+wg_opts["
+    --add_metadata
+"]:::opt -.-> wg
+%% anno -."--anno".-> wg
+%% fasta -."--fasta".-> wg
+wg -."--proksee".-> proksee["proksee/XXX.json"]:::file
+wg -."--gff".-> gff["gff/XXX.gff"]:::file
+wg -."--table".-> table["table/XXX.tsv"]:::file
+table & proksee ~~~ gff
 
 %% =====================
 %% Info
