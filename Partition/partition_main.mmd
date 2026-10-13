@@ -1,0 +1,27 @@
+flowchart LR
+
+%% =====================
+%% Styles
+%% =====================
+classDef cmd fill:#ffffff,stroke:#111111,stroke-width:2px,color:#111111;
+classDef file fill:#eef4ff,stroke:#3366cc,stroke-width:1.5px,color:#2244aa;
+
+%% =====================
+%% Main
+%% =====================
+nem_single --"*args"--> run_partitioning
+partition_nem --> run_partitioning
+nem_samples --> partition_nem
+write_nem_input_files --> org_file:::file & str_file:::file & index_file:::file & nei_file:::file & dat_file:::file
+evaluate_nb_partitions --> write_nem_input_files & nem_single
+check_pangenome_former_partition --> erase_pangenome
+partition --> check_pangenome_former_partition
+partition --> check_pangenome_info
+partition --> evaluate_nb_partitions
+partition --> validate_family
+partition --> write_nem_input_files
+partition --> run_partitioning
+partition --> get_gene_family
+launch --> partition & write_pangenome
+subparser --> parser_partition
+main --> launch & parser_partition & add_common_arguments & set_verbosity_level

@@ -1,0 +1,18 @@
+flowchart LR
+
+
+%% =====================
+%% Tests
+%% =====================
+TestIO --> pynem.io.read_str
+TestIO --> pynem.io.read_nei
+TestIO --> pynem.io.read_graph
+
+%% =====================
+%% Core
+%% =====================
+NEM.fit --"
+    X, G, ns, K, rng
+    if beta mode is 'heu_d' or 'heu_l'
+"--> _fit_heuristic
+NEM.fit --"X, ns, K, rng"--> _run_once

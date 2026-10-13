@@ -1,0 +1,113 @@
+{
+  "nodes": [
+    {
+      "type": "nested-canvas",
+      "id": "8e70e174-ab49-4290-8a12-9bb552b0017a",
+      "x": 68.80000000000001,
+      "y": 516,
+      "width": 500,
+      "height": 300,
+      "canvas": {
+        "nodes": [
+          {
+            "type": "nested-canvas",
+            "id": "02263cc3-6f45-4f48-a018-a8ba32a37dbb",
+            "x": -49.68,
+            "y": 120.08,
+            "width": 500,
+            "height": 300,
+            "canvas": {
+              "nodes": [
+                {
+                  "type": "nested-canvas",
+                  "id": "8f2713f8-efe1-4363-9f58-c628b0cfbfbc",
+                  "x": -370.6673775720194,
+                  "y": 237.11197959638613,
+                  "width": 370.2752949073543,
+                  "height": 203.75880862625553,
+                  "canvas": {
+                    "nodes": [],
+                    "edges": []
+                  },
+                  "title": "NEM"
+                },
+                {
+                  "type": "text",
+                  "id": "0d1600e5-2001-43a3-9486-aedfe30939e5",
+                  "x": -490.3655517341134,
+                  "y": -400.7389004784109,
+                  "width": 160.13909877871868,
+                  "height": 127.46178029431252,
+                  "text": "# Main\n\n[[PPanGGOLiN/ppanggolin/nem/partition.py?range=1044:0-1056:36]]"
+                },
+                {
+                  "type": "text",
+                  "id": "2fba1c1b-8762-4d8b-b225-34174ec49c62",
+                  "x": -816.0986026212734,
+                  "y": -155.4430822437682,
+                  "width": 318.6688613825619,
+                  "height": 122.88649864479146,
+                  "text": "# parser_partition()\n\n[[PPanGGOLiN/ppanggolin/nem/partition.py?range=913:0-1041:5]]"
+                },
+                {
+                  "type": "text",
+                  "id": "ad934ace-f40a-49c7-a27a-229a6ddf9607",
+                  "x": -324.72651607930857,
+                  "y": -158.6906365296538,
+                  "width": 188.50789261189038,
+                  "height": 120.46919250996064,
+                  "text": "# launch()\n\n[[PPanGGOLiN/ppanggolin/nem/partition.py?range=865:0-895:69]]"
+                },
+                {
+                  "type": "text",
+                  "id": "9d5ebafd-b671-484d-8140-7fe2727fa979",
+                  "x": -499.29131055016876,
+                  "y": 51.078447369297095,
+                  "width": 218.26883316345038,
+                  "height": 113.82707600093511,
+                  "text": "# partition()\n\n[[PPanGGOLiN/ppanggolin/nem/partition.py?range=616:0-862:49]]"
+                }
+              ],
+              "edges": [
+                {
+                  "id": "062fce01-3016-48ea-8953-65fd8ef0e7c5",
+                  "fromNode": "0d1600e5-2001-43a3-9486-aedfe30939e5",
+                  "fromSide": "bottom",
+                  "toNode": "2fba1c1b-8762-4d8b-b225-34174ec49c62",
+                  "toSide": "top",
+                  "toEnd": "arrow",
+                  "style": "solid",
+                  "shape": "curved"
+                },
+                {
+                  "id": "ccdb0c0b-a15b-45f1-9d68-a358f712d355",
+                  "fromNode": "0d1600e5-2001-43a3-9486-aedfe30939e5",
+                  "fromSide": "bottom",
+                  "toNode": "ad934ace-f40a-49c7-a27a-229a6ddf9607",
+                  "toSide": "top",
+                  "toEnd": "arrow",
+                  "style": "solid",
+                  "shape": "curved"
+                },
+                {
+                  "id": "1bc0f5e0-f8af-4a09-8548-c49ec939e8c8",
+                  "fromNode": "ad934ace-f40a-49c7-a27a-229a6ddf9607",
+                  "fromSide": "bottom",
+                  "toNode": "9d5ebafd-b671-484d-8140-7fe2727fa979",
+                  "toSide": "top",
+                  "toEnd": "arrow",
+                  "style": "solid",
+                  "shape": "curved"
+                }
+              ]
+            },
+            "title": "Partition"
+          }
+        ],
+        "edges": []
+      },
+      "title": "PPanGGOLiN"
+    }
+  ],
+  "edges": []
+}

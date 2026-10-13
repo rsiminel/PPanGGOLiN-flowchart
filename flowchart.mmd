@@ -11,7 +11,7 @@ classDef opt fill:#f3fff1,stroke:#4c9a2a,stroke-width:1.5px,color:#2f6f1e;
 %% Annotate
 %% =====================
 annotate_opts["
-    -p --prodigal
+    -p, --prodigal_procedure XXX
     --norna
     --allow-overlap
     --kingdom XXX
@@ -45,7 +45,7 @@ cluster ==> graf[graph]:::cmd
 %% Partition
 %% =====================
 partition_opts["
-    --nb_of_partitions X
+    -K, --nb_of_partitions X
 "]:::opt -.-> partition
 graf ==> partition[partition]:::cmd
 
@@ -57,7 +57,7 @@ rgp_opts["
     --persistent_penalty
     --min_score
     --min_length
-    --dup_margin
+    --dup_margin 0.05
 "]:::opt -.-> rgp
 partition ==> rgp[rgp]:::cmd
 
@@ -66,6 +66,8 @@ partition ==> rgp[rgp]:::cmd
 %%     --no_identical_rgp_merging
 %% "]:::opt -.-> rgp_clust
 %% rgp ==> rgp_clust[rgp_clust]:::cmd
+%% rgp_clust --> clust["rgp_clusters.tsv"]:::file
+%% rgp_clust --> cgexf["rgp_clusters.gexf"]:::file
 
 %% =====================
 %% Spot
@@ -147,6 +149,9 @@ metrics -."--genome_fluidity".-> h5
 %% Write Pangenome
 %% =====================
 h5 --"-p"--> wp[write_pangenome]:::cmd
+wp_opts["
+    -o --output XXX
+"]:::opt -.-> wp
 
 %% == Workflow ==
 wp -."--families_tsv".-> families["gene_families.tsv"]:::file
@@ -181,6 +186,9 @@ wp -."--module".-> mfun["functional_modules.tsv"]:::file
 wp -."--module".-> mgen["modules_in_genomes.tsv"]:::file
 wp -."--module".-> msum["modules_summary.tsv"]:::file
 mfun & mgen ~~~ msum
+wp -."--spot_modules".-> mspot["modules_spots.tsv"]:::file
+wp -."--spot_modules".-> mrgpl["modules_RGP_lists.tsv"]:::file
+mrgpl ~~~ mspot
 
 %% =====================
 %% Write Genomes
